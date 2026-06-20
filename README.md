@@ -1,15 +1,15 @@
 <h1 align="center">- mpv-config -</h1>
 <h3 align="center"><samp>my personal mpv config files</samp></h3>
 
-<img width="2560" height="1440" alt="showcase000" src="https://github.com/user-attachments/assets/b1738631-4b61-439b-a69a-801e6ff6615b" />
+<img width="2560" height="1440" alt="showcase000" src="https://github.com/user-attachments/assets/fd1b8290-2b73-470f-8d2f-14405388c5f0" />
 
-<img width="2560" height="1440" alt="showcase001" src="https://github.com/user-attachments/assets/2b2c54fd-6620-4fa5-a39b-e12aee4e9664" />
+<img width="2560" height="1440" alt="showcase001" src="https://github.com/user-attachments/assets/54c54c01-0e2f-4514-9977-e54b89de7c34" />
 
-<img width="2560" height="1440" alt="showcase002" src="https://github.com/user-attachments/assets/0d9715e5-6b84-4dc5-9988-d1303182b35d" />
+<img width="2560" height="1440" alt="showcase002" src="https://github.com/user-attachments/assets/b18dabf3-4e2c-4607-8534-7584a2a3f198" />
 
-<img width="2560" height="1440" alt="showcase003" src="https://github.com/user-attachments/assets/0a410c37-5af1-43e4-987d-f7d4a0f70e99" />
+<img width="2560" height="1440" alt="showcase003" src="https://github.com/user-attachments/assets/50d1f9f3-de72-4cde-997c-751ffe9a4d16" />
 
-<img width="2560" height="1440" alt="showcase004" src="https://github.com/user-attachments/assets/18cb0db5-6687-4f6f-90a0-a60ab03f8a5b" />
+<img width="2560" height="1440" alt="showcase004" src="https://github.com/user-attachments/assets/ba7deb73-ac5b-49e4-a839-32205f430ccf" />
 
 
 ## Requirements
