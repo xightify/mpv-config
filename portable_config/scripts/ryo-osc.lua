@@ -33,7 +33,7 @@ local user_opts = {
     window_top_bar = "auto",               -- show OSC window top bar: "auto", "yes", or "no" (borderless/fullscreen)
     window_title = false,                  -- show window title in borderless/fullscreen mode
 
-    speed_button = false,                  -- show speed control button
+    speed_button = "yes",                 -- "always" = always, "yes" = only when speed != 1, "no" = never
     speed_step = 0.1,                      -- speed change for left/right click and mouse wheel
     speed_min = 0.1,                       -- minimum playback speed from speed button
     speed_max = 2.0,                       -- maximum playback speed from speed button
@@ -1600,6 +1600,12 @@ end
 -- ryo-osc Layout
 --
 -- Default layout
+local function speed_button_visible()
+    local mode = user_opts.speed_button
+    if mode == "always" then return true end
+    if mode == "no" then return false end
+    return math.abs((state.speed or 1) - 1) > 0.001
+end
 local function layout_default()
     local chapter_index = (state.chapter or -1) >= 0
     local osc_height_offset =
@@ -1818,7 +1824,7 @@ local function layout_default()
     lo.style = osc_styles.buttons
     end_x = end_x - 55
 
-    elements.speed.visible = user_opts.speed_button or math.abs((state.speed or 1) - 1) > 0.001
+    elements.speed.visible = speed_button_visible()
     if elements.speed.visible then
         lo = add_layout("speed")
         lo.geometry = {x = end_x, y = ref_y - 38, an = 5, w = 24, h = 24}
@@ -3047,6 +3053,12 @@ local function validate_user_opts()
        user_opts.window_top_bar ~= "no" then
           msg.warn("window_top_bar cannot be '" .. user_opts.window_top_bar .. "'. Ignoring.")
           user_opts.window_top_bar = "auto"
+    end
+    if user_opts.speed_button ~= "always" and
+       user_opts.speed_button ~= "yes" and
+       user_opts.speed_button ~= "no" then
+        msg.warn("speed_button must be 'always', 'yes', or 'no'. Using 'yes'.")
+        user_opts.speed_button = "yes"
     end
 
     if user_opts.accent_color:find("^#%x%x%x%x%x%x$") == nil then
