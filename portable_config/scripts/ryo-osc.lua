@@ -244,6 +244,8 @@ local state = {
     windowcontrols_buttons = false,
     border = true,
     window_maximized = false,
+    window_minimized = false,
+    window_restoring = false,
     osd = mp.create_osd_overlay("ass-events"),
     logo_osd = mp.create_osd_overlay("ass-events"),
     temp_visibility_mode = nil,             -- store temporary visibility mode state
@@ -903,7 +905,7 @@ end
 
 local function window_controls_enabled()
     local val = user_opts.window_top_bar
-    if state.fullscreen then
+    if state.fullscreen or state.window_minimized or state.window_restoring then
         return false
     end
     if val == "auto" then
@@ -2914,6 +2916,22 @@ end)
 observe_cached("border", request_init_resize)
 observe_cached("title-bar", request_init_resize)
 observe_cached("window-maximized", request_init_resize)
+observe_cached("window-minimized", function ()
+    if state.window_minimized then
+        state.top_hover_visible = false
+        kill_top_hover_animation()
+        state.wc_visible = false
+        state.windowcontrols_buttons = false
+        state.windowcontrols_title = false
+        return
+    end
+
+    state.window_restoring = true
+    mp.add_timeout(0.15, function ()
+        state.window_restoring = false
+        request_init_resize()
+    end)
+end)
 observe_cached("idle-active", request_tick)
 
 mp.add_hook("on_unload", 50, function()
