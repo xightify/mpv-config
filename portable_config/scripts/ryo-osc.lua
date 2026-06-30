@@ -23,8 +23,8 @@ local user_opts = {
     fadein = true,                         -- whether to enable fade-in effect
     fadeduration = 200,                    -- fade-out duration (in ms), set to 0 for no fade
     minmousemove = 0,                      -- minimum mouse movement (in pixels) required to show OSC
-    selector_menu_osc_hide = "fade",      -- "instant", "fade", or "onmousemovement" after opening selector menus
-    hover_mode = 1,                       -- 1 = independent top/bottom zones, 2 = mouse movement shows both
+    selector_menu_osc_hide = "fade",       -- "instant", "fade", or "onmousemovement" after opening selector menus
+    hover_mode = 2,                        -- 1 = independent top/bottom zones, 2 = mouse movement shows both
 
     title = "${?demuxer-via-network==yes:${media-title}}${?demuxer-via-network==no:${filename/no-ext}}", -- title above seekbar format: "${media-title}" or "${filename}"
 
@@ -34,14 +34,14 @@ local user_opts = {
     window_top_bar = "auto",               -- show OSC window top bar: "auto", "yes", or "no" (borderless/fullscreen)
     window_title = false,                  -- show window title in borderless/fullscreen mode
 
-    speed_button = "yes",                 -- "always" = always, "yes" = only when speed != 1, "no" = never
+    speed_button = "yes",                  -- "always" = always, "yes" = only when speed != 1, "no" = never
     speed_step = 0.1,                      -- speed change for left/right click and mouse wheel
     speed_min = 0.1,                       -- minimum playback speed from speed button
     speed_max = 2.0,                       -- maximum playback speed from speed button
-    audio_button = "always",                -- "always" = show when audio exists, "yes" = only when more than 1 audio track exists, "no" = never
-    subtitle_button = "yes",             -- "always" = always show, "yes" = only when subtitle tracks exist, "no" = never
+    audio_button = "always",               -- "always" = show when audio exists, "yes" = only when more than 1 audio track exists, "no" = never
+    subtitle_button = "yes",               -- "always" = always show, "yes" = only when subtitle tracks exist, "no" = never
 
-    download_button = "yes",             -- "always" = keep showing after download, "yes" = hide after download, "no" = never
+    download_button = "yes",               -- "always" = keep showing after download, "yes" = hide after download, "no" = never
     download_path = "~/Videos/mpv-downloads/", -- default download directory for videos
 
     seekrange = true,                      -- show seek range overlay
@@ -1635,9 +1635,11 @@ local function layout_default()
         ((user_opts.title_mbtn_left_command == "" and user_opts.title_mbtn_right_command == "") and 25 or 0) +
         (((user_opts.chapter_title_mbtn_left_command == "" and user_opts.chapter_title_mbtn_right_command == "") or not chapter_index) and 10 or 0)
 
+local hover_height = combined_hover_mode() and 152 or 210 -- mouse no autohide area
+
     local osc_geo = {
         w = osc_param.playresx,
-        h = 210 - osc_height_offset
+        h = hover_height - osc_height_offset
     }
 
     -- update bottom margin
@@ -1653,14 +1655,13 @@ local function layout_default()
     add_area("input", get_hitbox_coords(pos_x, pos_y, 1, osc_geo.w, osc_geo.h))
 
     -- area for show/hide
-    -- add_area("showhide", 0, 0, osc_param.playresx, osc_param.playresy)
     if top_hover_enabled() then
         add_area("showhide_top", 0, 0, osc_param.playresx, 80)
     end
     if combined_hover_mode() then
         add_area("showhide", 0, 0, osc_param.playresx, osc_param.playresy)
     else
-        add_area("showhide", 0, osc_param.playresy - 210, osc_param.playresx, osc_param.playresy)
+        add_area("showhide", 0, osc_param.playresy - hover_height, osc_param.playresx, osc_param.playresy) -- hover area
     end
 
     -- fetch values
