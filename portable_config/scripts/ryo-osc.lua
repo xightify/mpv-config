@@ -1,4 +1,4 @@
--- ryo-osc v0.1.0
+-- ryo-osc v0.1.0rc
 -- https://github.com/Xightify/ryo-osc
 -- https://github.com/Xightify/mpv-config
 -- fork based on hayase-osc (https://github.com/nekoxuee/hayase-osc)
@@ -15,42 +15,42 @@ mp.set_property("osc", "no")
 -- do not touch, change them in ryo-osc.conf
 local user_opts = {
     idlescreen = true,                     -- show mpv logo when idle
-    audioonlyscreen = false,               -- show mpv logo when no video
-    osc_on_start = false,                  -- show OSC on start of every file
+    audioonlyscreen = false,               -- show mpv logo when there is no video
+    osc_on_start = false,                  -- show OSC when each file starts
     osc_on_seek = false,                   -- show OSC when seeking
-    keeponpause = true,                    -- disable OSC hide timeout when paused
+    keeponpause = true,                    -- keep OSC visible while playback is paused
     hidetimeout = 1000,                    -- time (in ms) before OSC hides if no mouse movement
-    fadein = true,                         -- whether to enable fade-in effect
+    fadein = true,                         -- enable fade-in effect
     fadeduration = 200,                    -- fade-out duration (in ms), set to 0 for no fade
     minmousemove = 0,                      -- minimum mouse movement (in pixels) required to show OSC
-    selector_menu_osc_hide = "fade",       -- "instant", "fade", or "onmousemovement" after opening selector menus
-    hover_mode = 2,                        -- 1 = independent top/bottom zones, 2 = mouse movement shows both
+    selector_menu_osc_hide = "fade",       -- hide behavior after opening selector menus: "instant", "fade", or "onmousemovement"
+    hover_mode = "combined",               -- "1"/"independent" = separate hover zones; "2"/"combined" = mouse movement shows both
 
     title = "${?demuxer-via-network==yes:${media-title}}${?demuxer-via-network==no:${filename/no-ext}}", -- title above seekbar format: "${media-title}" or "${filename}"
 
-    timecurrent = true,                    -- show total time instead of remaining time
+    timecurrent = true,                    -- show total duration instead of remaining time
     timems = false,                        -- show timecodes with milliseconds
 
     window_top_bar = "auto",               -- show OSC window top bar: "auto", "yes", or "no" (borderless/fullscreen)
     window_title = false,                  -- show window title in borderless/fullscreen mode
 
-    speed_button = "yes",                  -- "always" = always, "yes" = only when speed != 1, "no" = never
+    speed_button = "yes",                  -- "always" = always show, "yes" = show when speed is not 1x, "no" = never
     speed_step = 0.1,                      -- speed change for left/right click and mouse wheel
     speed_min = 0.1,                       -- minimum playback speed from speed button
     speed_max = 2.0,                       -- maximum playback speed from speed button
-    audio_button = "always",               -- "always" = show when audio exists, "yes" = only when more than 1 audio track exists, "no" = never
-    subtitle_button = "yes",               -- "always" = always show, "yes" = only when subtitle tracks exist, "no" = never
+    audio_button = "always",               -- "always" = show when audio exists, "yes" = show only with multiple audio tracks, "no" = never
+    subtitle_button = "yes",               -- "always" = always show, "yes" = show only when subtitle tracks exist, "no" = never
 
     download_button = "yes",               -- "always" = keep showing after download, "yes" = hide after download, "no" = never
     download_path = "~/Videos/mpv-downloads/", -- default download directory for videos
 
     seekrange = true,                      -- show seek range overlay
     persistent_progress = false,           -- always show a small progress line at the bottom of the screen
-    persistent_buffer = false,             -- show cached buffer status in the persistent progress line
+    persistent_buffer = false,             -- show cache status in the persistent progress line
 
     accent_color = "#FFFFFF",            -- accent color for the progress bar
 
-    visibility = "auto",                   -- only used at init to set visibility_mode(...)
+    visibility = "auto",                   -- initial visibility mode
     visibility_modes = "never_auto_always",-- visibility modes to cycle through
     greenandgrumpy = false,                -- disable Santa hat in December
     tick_delay = 1 / 60,                   -- minimum interval between OSC redraws (in seconds)
@@ -916,11 +916,11 @@ local function window_controls_enabled()
 end
 
 local function independent_hover_mode()
-    return user_opts.hover_mode == 1
+    return user_opts.hover_mode == "1" or user_opts.hover_mode == "independent"
 end
 
 local function combined_hover_mode()
-    return user_opts.hover_mode == 2
+    return user_opts.hover_mode == "2" or user_opts.hover_mode == "combined"
 end
 
 local function combined_controls_visible()
@@ -1635,7 +1635,7 @@ local function layout_default()
         ((user_opts.title_mbtn_left_command == "" and user_opts.title_mbtn_right_command == "") and 25 or 0) +
         (((user_opts.chapter_title_mbtn_left_command == "" and user_opts.chapter_title_mbtn_right_command == "") or not chapter_index) and 10 or 0)
 
-local hover_height = combined_hover_mode() and 152 or 210 -- mouse no autohide area
+    local hover_height = combined_hover_mode() and 152 or 210 -- mouse no-autohide area
 
     local osc_geo = {
         w = osc_param.playresx,
@@ -2591,6 +2591,16 @@ local function render()
     local mouse_x, mouse_y = get_virt_mouse_pos()
     local now = mp.get_time()
 
+    if state.top_hover_visible and osc_param.areas["showhide_top"] and state.top_hover_ani_type ~= "out" then
+        local mouse_in_top_hover = false
+        for _, cords in ipairs(osc_param.areas["showhide_top"]) do
+            if mouse_x >= cords.x1 and mouse_x <= cords.x2 and mouse_y >= cords.y1 and mouse_y <= cords.y2 then
+                mouse_in_top_hover = true
+                break
+            end
+        end
+        if not mouse_in_top_hover then hide_top_controls() end
+    end
     -- top hover fade animation
     if state.top_hover_ani_type ~= nil then
         if user_opts.fadeduration <= 0 then
@@ -3125,11 +3135,12 @@ end)
 
 -- validate string type user options
 local function validate_user_opts()
-    if user_opts.hover_mode ~= 1 and user_opts.hover_mode ~= 2 then
-        msg.warn("hover_mode must be 1 or 2. Using 1.")
-        user_opts.hover_mode = 1
+    user_opts.hover_mode = tostring(user_opts.hover_mode)
+    if user_opts.hover_mode ~= "1" and user_opts.hover_mode ~= "2" and
+       user_opts.hover_mode ~= "independent" and user_opts.hover_mode ~= "combined" then
+        msg.warn("hover_mode must be '1', '2', 'independent', or 'combined'. Using 'independent'.")
+        user_opts.hover_mode = "independent"
     end
-
     if user_opts.window_top_bar ~= "auto" and
        user_opts.window_top_bar ~= "yes" and
        user_opts.window_top_bar ~= "no" then
