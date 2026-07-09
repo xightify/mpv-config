@@ -32,6 +32,7 @@ local user_opts = {
     timems = false,                        -- show timecodes with milliseconds
 
     window_top_bar = "auto",               -- show OSC window top bar: "auto", "yes", or "no" (borderless/fullscreen)
+    fullscreen_window_controls = false,    -- allow top window controls in fullscreen
     window_title = false,                  -- show window title in borderless/fullscreen mode
 
     speed_button = "yes",                  -- "always" = always show, "yes" = show when speed is not 1x, "no" = never
@@ -905,8 +906,12 @@ end
 
 local function window_controls_enabled()
     local val = user_opts.window_top_bar
-    if state.fullscreen or state.window_minimized or state.window_restoring then
+    if state.window_minimized or state.window_restoring then
         return false
+    end
+
+    if state.fullscreen then
+        return user_opts.fullscreen_window_controls
     end
     if val == "auto" then
         return not state.border or not state.title_bar
@@ -928,7 +933,7 @@ local function combined_controls_visible()
 end
 
 local function top_hover_enabled()
-    return independent_hover_mode() and window_controls_enabled() and not state.fullscreen
+    return independent_hover_mode() and window_controls_enabled()
 end
 
 --
