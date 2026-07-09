@@ -1,4 +1,4 @@
--- ryo-osc v0.1.0rc
+-- ryo-osc v0.1.0
 -- https://github.com/Xightify/ryo-osc
 -- https://github.com/Xightify/mpv-config
 -- fork based on hayase-osc (https://github.com/nekoxuee/hayase-osc)
