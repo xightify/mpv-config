@@ -1,11 +1,11 @@
--- Press Alt+F7 to cycle subtitle styles.
--- https://github.com/Xightify/mpv-config
+-- Press F5 to cycle subtitle styles.
+-- https://github.com/xightify/mpv-config
 
 local mp = require "mp"
 local options = require "mp.options"
 
 local o = {
-    cycle_key = "Alt+F7",
+    cycle_key = "F5",
     osd_message_duration = 0.5,
 }
 
@@ -144,7 +144,7 @@ local function cycle_subtitle_style()
 end
 
 if o.cycle_key ~= "" then
-    mp.add_key_binding(o.cycle_key, "cycle-subtitle-style", cycle_subtitle_style)
+    mp.add_forced_key_binding(o.cycle_key, "cycle-subtitle-style", cycle_subtitle_style)
 end
 
 -- === Reference ===

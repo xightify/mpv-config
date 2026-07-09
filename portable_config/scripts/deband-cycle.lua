@@ -1,13 +1,12 @@
 -- deband-cycle.lua
--- https://github.com/Xightify/mpv-config
-
--- Press Shift+F7 to cycle deband profiles.
+-- https://github.com/xightify/mpv-config
+-- Press 1 to cycle deband profiles.
 
 local mp = require "mp"
 local options = require "mp.options"
 
 local o = {
-    cycle_key = "Shift+F7",
+    cycle_key = "1",
     osd_message_duration = 0.5,
 }
 
@@ -27,6 +26,7 @@ local default_profile = {
 -- Add, remove, or reorder profiles here.
 -- grain = 0 gives you a no-grain profile.
 local profiles = {
+    default_profile,
     {
         name = "Light",
         enabled = true,
@@ -67,7 +67,6 @@ local profiles = {
         range = default_profile.range,
         grain = 0,
     },
-    default_profile,
 }
 
 local current_profile = 0
@@ -101,7 +100,7 @@ local function cycle_deband_profile()
 end
 
 if o.cycle_key ~= "" then
-    mp.add_key_binding(o.cycle_key, "cycle-deband-profile", cycle_deband_profile)
+    mp.add_forced_key_binding(o.cycle_key, "cycle-deband-profile", cycle_deband_profile)
 end
 
 -- === Reference ===
@@ -128,6 +127,4 @@ end
 --   Set to 0 for a no-grain profile.
 --
 -- Notes:
---
--- The Default profile is included at the end of the cycle so you can keep
--- your preferred everyday deband values in one obvious place.
+-- The Default profile is included at the beginning of the cycle so you start with your preferred everyday deband settings before cycling through the alternate profiles.
